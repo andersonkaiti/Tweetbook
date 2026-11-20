@@ -1,9 +1,11 @@
 using Tweetbook.Extensions;
+using Tweetbook.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerDocs(builder.Configuration);
+builder.Services.AddSingleton<IPostRepository, InMemoryPostRepository>();
 
 var app = builder.Build();
 

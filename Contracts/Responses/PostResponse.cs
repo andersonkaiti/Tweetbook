@@ -2,5 +2,6 @@ namespace Tweetbook.Contracts.Responses;
 
 public class PostResponse
 {
-  public required string Id { get; set; }
+  public required Guid Id { get; set; }
+  public required string Name { get; set; }
 }

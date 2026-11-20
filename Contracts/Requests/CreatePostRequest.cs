@@ -1,6 +1,9 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Tweetbook.Contracts.Requests;
 
 public class CreatePostRequest
 {
-  public string? Id { get; set; }
+  [Required(ErrorMessage = "Name is required")]
+  public string Name { get; set; } = string.Empty;
 }

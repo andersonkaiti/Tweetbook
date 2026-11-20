@@ -2,48 +2,54 @@ using Microsoft.AspNetCore.Mvc;
 using Tweetbook.Contracts.Requests;
 using Tweetbook.Contracts.Responses;
 using Tweetbook.Domain;
+using Tweetbook.Repositories;
 
 namespace Tweetbook.Controllers
 {
   [Route("[controller]")]
   [ApiController]
-  public class PostsController : ControllerBase
+  public class PostsController(IPostRepository postRepository) : ControllerBase
   {
-    private readonly List<Post> posts = [];
-    private readonly int postsQuantity = 5;
-
-    public PostsController()
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
     {
-      for (var i = 0; i < postsQuantity; i++)
-      {
-        posts.Add(new Post
-        {
-          Id = Guid.NewGuid().ToString()
-        });
-      }
+      var posts = await postRepository.GetPostsAsync();
+      var response = posts.Select(ToResponse);
+
+      return Ok(response);
     }
 
-    [HttpGet]
-    public IActionResult GetAll()
+    [HttpGet("{id:Guid}")]
+    public async Task<IActionResult> GetById([FromRoute] Guid id)
     {
-      return Ok(posts);
+      var post = await postRepository.GetPostByIdAsync(id);
+
+      if (post == null)
+      {
+        return NotFound();
+      }
+
+      return Ok(ToResponse(post));
     }
 
     [HttpPost]
-    public IActionResult Create([FromBody] CreatePostRequest postRequest)
+    public async Task<IActionResult> Create([FromBody] CreatePostRequest postRequest)
     {
-      var post = new Post { Id = postRequest.Id };
-
-      if (string.IsNullOrEmpty(post.Id))
+      var post = new Post
       {
-        post.Id = Guid.NewGuid().ToString();
-      }
+        Id = Guid.NewGuid(),
+        Name = postRequest.Name
+      };
 
-      posts.Add(post);
+      await postRepository.CreateAsync(post);
 
-      var response = new PostResponse { Id = post.Id };
-
-      return Created($"/posts/{post.Id}", response);
+      return Created($"/posts/{post.Id}", ToResponse(post));
     }
+
+    private static PostResponse ToResponse(Post post) => new()
+    {
+      Id = post.Id,
+      Name = post.Name
+    };
   }
 }
