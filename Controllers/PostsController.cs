@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Tweetbook.Contracts.Requests;
+using Tweetbook.Contracts.Responses;
 using Tweetbook.Domain;
 
 namespace Tweetbook.Controllers
@@ -25,6 +27,23 @@ namespace Tweetbook.Controllers
     public IActionResult GetAll()
     {
       return Ok(posts);
+    }
+
+    [HttpPost]
+    public IActionResult Create([FromBody] CreatePostRequest postRequest)
+    {
+      var post = new Post { Id = postRequest.Id };
+
+      if (string.IsNullOrEmpty(post.Id))
+      {
+        post.Id = Guid.NewGuid().ToString();
+      }
+
+      posts.Add(post);
+
+      var response = new PostResponse { Id = post.Id };
+
+      return Created($"/posts/{post.Id}", response);
     }
   }
 }
