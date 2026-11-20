@@ -37,11 +37,13 @@ public class InMemoryPostRepository : IPostRepository
     }
   }
 
-  public async Task CreateAsync(Post post)
+  public async Task<bool> CreateAsync(Post post)
   {
     lock (sync)
     {
       posts.Add(post);
+
+      return true;
     }
   }
 

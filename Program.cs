@@ -3,9 +3,14 @@ using Tweetbook.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.LoadDotEnv();
+
 builder.Services.AddControllers();
 builder.Services.AddSwaggerDocs(builder.Configuration);
-builder.Services.AddSingleton<IPostRepository, InMemoryPostRepository>();
+
+builder.Services.AddDatabase(builder.Configuration);
+
+builder.Services.AddScoped<IPostRepository, PostgreSQLPostsRepository>();
 
 var app = builder.Build();
 
