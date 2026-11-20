@@ -65,6 +65,19 @@ namespace Tweetbook.Controllers
       return Ok(post);
     }
 
+    [HttpDelete("{id:Guid}")]
+    public async Task<IActionResult> Delete([FromRoute] Guid id)
+    {
+      var wasDeleted = await postRepository.DeleteAsync(id);
+
+      if (!wasDeleted)
+      {
+        return NotFound();
+      }
+
+      return NoContent();
+    }
+
     private static PostResponse ToResponse(Post post) => new()
     {
       Id = post.Id,

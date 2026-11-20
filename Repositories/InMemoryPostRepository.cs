@@ -60,4 +60,18 @@ public class InMemoryPostRepository : IPostRepository
 
     return true;
   }
+
+  public async Task<bool> DeleteAsync(Guid id)
+  {
+    var postExists = await GetPostByIdAsync(id);
+
+    if (postExists == null)
+    {
+      return false;
+    }
+
+    posts.Remove(postExists);
+
+    return true;
+  }
 }
