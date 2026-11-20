@@ -44,4 +44,20 @@ public class InMemoryPostRepository : IPostRepository
       posts.Add(post);
     }
   }
+
+  public async Task<bool> UpdateAsync(Post postToUpdate)
+  {
+    var postExists = await GetPostByIdAsync(postToUpdate.Id) != null;
+
+    if (!postExists)
+    {
+      return false;
+    }
+
+    var postIndex = posts.FindIndex(post => post.Id == postToUpdate.Id);
+
+    posts[postIndex] = postToUpdate;
+
+    return true;
+  }
 }

@@ -46,6 +46,25 @@ namespace Tweetbook.Controllers
       return Created($"/posts/{post.Id}", ToResponse(post));
     }
 
+    [HttpPut("{id:Guid}")]
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdatePostRequest request)
+    {
+      var post = new Post
+      {
+        Id = id,
+        Name = request.Name
+      };
+
+      var wasPostUpdated = await postRepository.UpdateAsync(post);
+
+      if (!wasPostUpdated)
+      {
+        return NotFound();
+      }
+
+      return Ok(post);
+    }
+
     private static PostResponse ToResponse(Post post) => new()
     {
       Id = post.Id,
