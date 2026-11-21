@@ -1,33 +1,23 @@
-using Tweetbook.Extensions;
-using Tweetbook.Repositories;
+using Tweetbook.src.Domain.Repositories;
+using Tweetbook.src.Infrastructure.Database.Repositories;
+using Tweetbook.src.Infrastructure.Http.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.LoadDotEnv();
 
 builder.Services.AddControllers();
-builder.Services.AddSwaggerDocs(builder.Configuration);
 
-builder.Services.AddDatabase(builder.Configuration);
-
-builder.Services.AddScoped<IPostRepository, PostgreSQLPostsRepository>();
+builder.Services
+  .AddSwaggerDocs(builder.Configuration)
+  .AddDatabase()
+  .AddJwtAuth()
+  .AddScoped<IPostRepository, PostgreSQLPostsRepository>()
+  .AddUseCases()
+  .AddExceptionHandler();
 
 var app = builder.Build();
 
-if (!app.Environment.IsDevelopment())
-{
-  app.UseHsts();
-}
-
-app.UseSwaggerDocs();
-
-app.UseHttpsRedirection();
-app.UseAuthorization();
-app.MapControllers();
-
-app.MapFallback(() => Results.Problem(
-  title: "Route not found",
-  statusCode: StatusCodes.Status404NotFound
-));
+app.UseApiPipeline();
 
 app.Run();
