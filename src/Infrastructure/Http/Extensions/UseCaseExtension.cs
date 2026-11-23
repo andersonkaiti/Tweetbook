@@ -1,3 +1,4 @@
+using Tweetbook.src.Application.UseCases.Authentication;
 using Tweetbook.src.Application.UseCases.Posts;
 
 namespace Tweetbook.src.Infrastructure.Http.Extensions;
@@ -13,6 +14,8 @@ public static class UseCaseExtension
     services.AddScoped<CreatePostUseCase>();
     services.AddScoped<UpdatePostUseCase>();
     services.AddScoped<DeletePostUseCase>();
+
+    services.AddScoped<RegisterUseCase>();
 
     return services;
   }

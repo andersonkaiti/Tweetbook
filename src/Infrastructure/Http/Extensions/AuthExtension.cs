@@ -1,6 +1,8 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Tweetbook.src.Domain.Gateways;
+using Tweetbook.src.Infrastructure.Http.Gateways;
 
 namespace Tweetbook.src.Infrastructure.Http.Extensions;
 
@@ -27,6 +29,9 @@ public static class AuthExtension
 
 
     services.AddAuthorization();
+
+    services.AddScoped<JwtExtension>();
+    services.AddScoped<IJwtGateway, JwtGateway>();
 
     return services;
   }

@@ -4,7 +4,8 @@ using Tweetbook.src.Application.Exceptions;
 
 namespace Tweetbook.src.Infrastructure.Http;
 
-public class ExceptionHandler : IExceptionHandler
+public class ExceptionHandler(ILogger<ExceptionHandler> logger)
+  : IExceptionHandler
 {
   public async ValueTask<bool> TryHandleAsync(
     HttpContext httpContext,
@@ -12,6 +13,8 @@ public class ExceptionHandler : IExceptionHandler
     CancellationToken cancellationToken
   )
   {
+    logger.LogError(exception, "{Message}", exception.Message);
+
     if (exception is NotFoundException)
     {
       httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
@@ -20,6 +23,22 @@ public class ExceptionHandler : IExceptionHandler
         new ProblemDetails
         {
           Status = StatusCodes.Status404NotFound,
+          Title = exception.Message,
+        },
+        cancellationToken
+      );
+
+      return true;
+    }
+
+    if (exception is BadRequestException)
+    {
+      httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+      await httpContext.Response.WriteAsJsonAsync(
+        new ProblemDetails
+        {
+          Status = StatusCodes.Status400BadRequest,
           Title = exception.Message,
         },
         cancellationToken
