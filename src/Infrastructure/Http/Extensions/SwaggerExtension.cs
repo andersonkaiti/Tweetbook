@@ -25,6 +25,21 @@ public static class SwaggerExtension
         Title = swaggerOptions.Description,
         Version = "v1"
       });
+
+      x.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+      {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Paste only the token without the 'Bearer'"
+      });
+
+      x.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+      {
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+      });
     });
 
     return services;
