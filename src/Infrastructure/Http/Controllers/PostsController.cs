@@ -6,7 +6,7 @@ using Tweetbook.src.Application.UseCases.Posts;
 
 namespace Tweetbook.src.Infrastructure.Http.Controllers
 {
-  [Route("[controller]")]
+  [Route("/[controller]/[action]")]
   [ApiController]
   public class PostsController : ControllerBase
   {
