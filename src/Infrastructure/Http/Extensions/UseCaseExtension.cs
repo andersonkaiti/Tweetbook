@@ -16,6 +16,7 @@ public static class UseCaseExtension
     services.AddScoped<DeletePostUseCase>();
 
     services.AddScoped<RegisterUseCase>();
+    services.AddScoped<LoginUseCase>();
 
     return services;
   }

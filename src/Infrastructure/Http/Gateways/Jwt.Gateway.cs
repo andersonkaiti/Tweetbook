@@ -49,4 +49,40 @@ public class JwtGateway(
       Token = token
     };
   }
+
+  public async Task<AuthenticationResult> LoginAsync(
+    string email,
+    string password
+  )
+  {
+    var user = await userManager.FindByEmailAsync(email);
+
+    if (user is null)
+    {
+      return new AuthenticationResult
+      {
+        Errors = ["Invalid credentials"]
+      };
+    }
+
+    var userHasValidPassword = await userManager
+      .CheckPasswordAsync(user, password);
+
+    if (!userHasValidPassword)
+    {
+      return new AuthenticationResult
+      {
+        Errors = ["Invalid credentials"]
+      };
+    }
+
+    var token = jwtExtension.Emit(email, user.Id);
+
+    return new AuthenticationResult
+    {
+      Errors = [],
+      Success = true,
+      Token = token
+    };
+  }
 }
