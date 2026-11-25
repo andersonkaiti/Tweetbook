@@ -9,4 +9,5 @@ public interface IPostRepository
   Task<bool> CreateAsync(Post post);
   Task<bool> UpdateAsync(Post postToUpdate);
   Task<bool> DeleteAsync(Guid id);
+  Task<bool> UserOwnsPostAsync(Guid postId, string userId);
 }

@@ -44,4 +44,23 @@ public class PostgreSQLPostsRepository(AppDbContext dbContext) : IPostRepository
 
     return deletedRows > 0;
   }
+
+  public async Task<bool> UserOwnsPostAsync(Guid postId, string userId)
+  {
+    var post = await dbContext.Posts
+      .AsNoTracking()
+      .SingleOrDefaultAsync(post => post.Id == postId);
+
+    if (post is null)
+    {
+      return false;
+    }
+
+    if (post.AuthorId != userId)
+    {
+      return false;
+    }
+
+    return true;
+  }
 }

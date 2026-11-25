@@ -47,6 +47,22 @@ public class ExceptionHandler(ILogger<ExceptionHandler> logger)
       return true;
     }
 
+    if (exception is UnauthorizedException)
+    {
+      httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
+      await httpContext.Response.WriteAsJsonAsync(
+        new ProblemDetails
+        {
+          Status = StatusCodes.Status401Unauthorized,
+          Title = exception.Message,
+        },
+        cancellationToken
+      );
+
+      return true;
+    }
+
     await httpContext.Response.WriteAsJsonAsync(
       new ProblemDetails
       {

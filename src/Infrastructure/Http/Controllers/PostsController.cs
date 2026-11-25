@@ -3,6 +3,9 @@ using Tweetbook.src.Infrastructure.Http.Contracts.Requests;
 using Tweetbook.src.Infrastructure.Http.Contracts.Responses;
 using Tweetbook.src.Domain.Entities;
 using Tweetbook.src.Application.UseCases.Posts;
+using Tweetbook.src.Infrastructure.Http.Extensions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Tweetbook.src.Infrastructure.Http.Controllers
 {
@@ -11,7 +14,9 @@ namespace Tweetbook.src.Infrastructure.Http.Controllers
   public class PostsController : ControllerBase
   {
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromServices] GetPostsUseCase useCase)
+    public async Task<IActionResult> GetAll(
+      [FromServices] GetPostsUseCase useCase
+    )
     {
       var posts = await useCase.ExecuteAsync();
 
@@ -21,20 +26,28 @@ namespace Tweetbook.src.Infrastructure.Http.Controllers
     }
 
     [HttpGet("{id:Guid}")]
-    public async Task<IActionResult> GetById([FromServices] GetPostByIdUseCase useCase, [FromRoute] Guid id)
+    public async Task<IActionResult> GetById(
+      [FromServices] GetPostByIdUseCase useCase,
+      [FromRoute] Guid id
+    )
     {
       var post = await useCase.ExecuteAsync(id);
 
       return Ok(ToResponse(post));
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpPost]
-    public async Task<IActionResult> Create([FromServices] CreatePostUseCase useCase, [FromBody] CreatePostRequest postRequest)
+    public async Task<IActionResult> Create(
+      [FromServices] CreatePostUseCase useCase,
+      [FromBody] CreatePostRequest postRequest
+    )
     {
       var post = new Post
       {
         Id = Guid.NewGuid(),
-        Name = postRequest.Name
+        Name = postRequest.Name,
+        AuthorId = HttpContext.GetAuthenticatedUserId()
       };
 
       await useCase.ExecuteAsync(post);
@@ -42,6 +55,7 @@ namespace Tweetbook.src.Infrastructure.Http.Controllers
       return Created($"/posts/{post.Id}", ToResponse(post));
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpPut("{id:Guid}")]
     public async Task<IActionResult> Update(
       [FromServices] UpdatePostUseCase useCase,
@@ -54,15 +68,19 @@ namespace Tweetbook.src.Infrastructure.Http.Controllers
         Name = request.Name
       };
 
-      await useCase.ExecuteAsync(post);
+      await useCase.ExecuteAsync(post, HttpContext.GetAuthenticatedUserId());
 
       return Ok(post);
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpDelete("{id:Guid}")]
-    public async Task<IActionResult> Delete([FromServices] DeletePostUseCase useCase, [FromRoute] Guid id)
+    public async Task<IActionResult> Delete(
+      [FromServices] DeletePostUseCase useCase,
+      [FromRoute] Guid id
+    )
     {
-      await useCase.ExecuteAsync(id);
+      await useCase.ExecuteAsync(id, HttpContext.GetAuthenticatedUserId());
 
       return NoContent();
     }

@@ -6,8 +6,15 @@ namespace Tweetbook.src.Application.UseCases.Posts;
 
 public class UpdatePostUseCase(IPostRepository postRepository)
 {
-  public async Task<bool> ExecuteAsync(Post post)
+  public async Task<bool> ExecuteAsync(Post post, string userId)
   {
+    var userOwnsPost = await postRepository.UserOwnsPostAsync(post.Id, userId);
+
+    if (!userOwnsPost)
+    {
+      throw new UnauthorizedException("You don't own this post");
+    }
+
     var wasPostUpdated = await postRepository.UpdateAsync(post);
 
     if (!wasPostUpdated)

@@ -5,8 +5,15 @@ namespace Tweetbook.src.Application.UseCases.Posts;
 
 public class DeletePostUseCase(IPostRepository postRepository)
 {
-  public async Task<bool> ExecuteAsync(Guid id)
+  public async Task<bool> ExecuteAsync(Guid id, string userId)
   {
+    var userOwnsPost = await postRepository.UserOwnsPostAsync(id, userId);
+
+    if (!userOwnsPost)
+    {
+      throw new UnauthorizedException("You don't own this post");
+    }
+
     var wasDeleted = await postRepository.DeleteAsync(id);
 
     if (!wasDeleted)

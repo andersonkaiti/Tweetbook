@@ -77,4 +77,9 @@ public class InMemoryPostRepository : IPostRepository
 
     return true;
   }
+
+  public Task<bool> UserOwnsPostAsync(Guid postId, string userId)
+  {
+    throw new NotImplementedException();
+  }
 }
