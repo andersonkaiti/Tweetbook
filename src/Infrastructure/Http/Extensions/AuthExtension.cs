@@ -16,6 +16,7 @@ public static class AuthExtension
       .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
       .AddJwtBearer(options =>
       {
+        options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
           ValidateIssuer = false,
@@ -27,10 +28,8 @@ public static class AuthExtension
         };
       });
 
-
     services.AddAuthorization();
 
-    services.AddScoped<JwtExtension>();
     services.AddScoped<IJwtGateway, JwtGateway>();
 
     return services;

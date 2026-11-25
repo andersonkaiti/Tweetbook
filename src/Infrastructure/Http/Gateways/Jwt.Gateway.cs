@@ -1,14 +1,41 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using Tweetbook.src.Domain.Gateways;
 using Tweetbook.src.Infrastructure.Http.Extensions;
 
 namespace Tweetbook.src.Infrastructure.Http.Gateways;
 
-public class JwtGateway(
-  UserManager<IdentityUser> userManager,
-  JwtExtension jwtExtension
-) : IJwtGateway
+public class JwtGateway(UserManager<IdentityUser> userManager) : IJwtGateway
 {
+  public string? Emit(string email, string id)
+  {
+    var handler = new JwtSecurityTokenHandler();
+
+    var descriptor = new SecurityTokenDescriptor
+    {
+      Subject = new ClaimsIdentity(
+      [
+        new Claim(JwtRegisteredClaimNames.Sub, id),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new Claim(JwtRegisteredClaimNames.Email, email),
+      ]),
+      Expires = DateTime.UtcNow.AddHours(2),
+      SigningCredentials = new SigningCredentials(
+        new SymmetricSecurityKey(
+          Encoding.ASCII.GetBytes(Env.JwtSecret)
+        ),
+        SecurityAlgorithms.HmacSha256Signature
+      )
+    };
+
+    var token = handler.CreateToken(descriptor);
+
+    return handler.WriteToken(token);
+  }
+
   public async Task<AuthenticationResult> RegisterAsync(
     string email,
     string password
@@ -40,7 +67,7 @@ public class JwtGateway(
       };
     }
 
-    var token = jwtExtension.Emit(email, newUser.Id);
+    var token = Emit(email, newUser.Id);
 
     return new AuthenticationResult
     {
@@ -76,7 +103,7 @@ public class JwtGateway(
       };
     }
 
-    var token = jwtExtension.Emit(email, user.Id);
+    var token = Emit(email, user.Id);
 
     return new AuthenticationResult
     {
