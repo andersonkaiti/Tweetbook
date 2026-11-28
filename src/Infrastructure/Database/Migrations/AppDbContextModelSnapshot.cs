@@ -238,6 +238,38 @@ namespace Tweetbook.src.Infrastructure.Database.Migrations
                     b.ToTable("Posts");
                 });
 
+            modelBuilder.Entity("Tweetbook.src.Domain.Entities.RefreshToken", b =>
+                {
+                    b.Property<string>("Token")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpireDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Invalidated")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("JwtId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("Used")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Token");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -296,6 +328,17 @@ namespace Tweetbook.src.Infrastructure.Database.Migrations
                         .HasForeignKey("AuthorId");
 
                     b.Navigation("Author");
+                });
+
+            modelBuilder.Entity("Tweetbook.src.Domain.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

@@ -12,20 +12,26 @@ public static class AuthExtension
     this IServiceCollection services
   )
   {
+    var tokenValidationParameters = new TokenValidationParameters
+    {
+      ValidateIssuer = false,
+      ValidateAudience = false,
+      ValidateLifetime = true,
+      ValidateIssuerSigningKey = true,
+      IssuerSigningKey = new SymmetricSecurityKey(
+        Encoding.UTF8.GetBytes(Env.JwtSecret)
+      ),
+      ValidAlgorithms = [SecurityAlgorithms.HmacSha256]
+    };
+
+    services.AddSingleton(tokenValidationParameters);
+
     services
       .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
       .AddJwtBearer(options =>
       {
         options.MapInboundClaims = false;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-          ValidateIssuer = false,
-          ValidateAudience = false,
-          ValidateLifetime = true,
-          ValidateIssuerSigningKey = true,
-          IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(Env.JwtSecret))
-        };
+        options.TokenValidationParameters = tokenValidationParameters;
       });
 
     services.AddAuthorization();

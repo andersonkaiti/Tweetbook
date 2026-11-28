@@ -42,5 +42,19 @@ namespace Tweetbook.src.Infrastructure.Http.Controllers
 
       return Ok(authResponse);
     }
+
+    [HttpPost]
+    public async Task<IActionResult> RefreshToken(
+      [FromServices] RefreshTokenUseCase useCase,
+      [FromBody] RefreshTokenRequest request
+    )
+    {
+      var authResponse = await useCase.ExecuteAsync(
+        request.Token,
+        request.RefreshToken
+      );
+
+      return Ok(authResponse);
+    }
   }
 }

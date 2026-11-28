@@ -5,6 +5,7 @@ namespace Tweetbook.src.Domain.Gateways;
 public record class AuthenticationResult(
   bool IsSuccess,
   string? Token = null,
+  string? RefreshToken = null,
   string? Error = null
 )
 {
@@ -12,8 +13,8 @@ public record class AuthenticationResult(
   [MemberNotNullWhen(false, nameof(Error))]
   public bool IsSuccess { get; init; } = IsSuccess;
 
-  public static AuthenticationResult Success(string token)
-    => new(true, token, null);
+  public static AuthenticationResult Success(string token, string refreshToken)
+    => new(true, token, refreshToken, null);
   public static AuthenticationResult Failed(string error)
-    => new(false, null, error);
+    => new(false, null, null, error);
 }

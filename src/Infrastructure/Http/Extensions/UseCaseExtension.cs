@@ -17,6 +17,7 @@ public static class UseCaseExtension
 
     services.AddScoped<RegisterUseCase>();
     services.AddScoped<LoginUseCase>();
+    services.AddScoped<RefreshTokenUseCase>();
 
     return services;
   }
