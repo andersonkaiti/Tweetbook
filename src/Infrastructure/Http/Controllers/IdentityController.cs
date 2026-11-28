@@ -40,7 +40,7 @@ namespace Tweetbook.src.Infrastructure.Http.Controllers
 
       var authResponse = await useCase.ExecuteAsync(user);
 
-      return Ok(authResponse.Token);
+      return Ok(authResponse);
     }
   }
 }

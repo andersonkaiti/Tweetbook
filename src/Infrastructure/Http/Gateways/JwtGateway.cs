@@ -10,7 +10,7 @@ namespace Tweetbook.src.Infrastructure.Http.Gateways;
 
 public class JwtGateway(UserManager<IdentityUser> userManager) : IJwtGateway
 {
-  public string? Emit(string email, string id)
+  public string Emit(string email, string id)
   {
     var handler = new JwtSecurityTokenHandler();
 
@@ -22,7 +22,7 @@ public class JwtGateway(UserManager<IdentityUser> userManager) : IJwtGateway
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         new Claim(JwtRegisteredClaimNames.Email, email),
       ]),
-      Expires = DateTime.UtcNow.AddHours(2),
+      Expires = DateTime.UtcNow.AddSeconds(45),
       SigningCredentials = new SigningCredentials(
         new SymmetricSecurityKey(
           Encoding.ASCII.GetBytes(Env.JwtSecret)
@@ -45,10 +45,9 @@ public class JwtGateway(UserManager<IdentityUser> userManager) : IJwtGateway
 
     if (userAlreadyExists is not null)
     {
-      return new AuthenticationResult
-      {
-        Errors = ["An user with this email address already exists"]
-      };
+      return AuthenticationResult.Failed(
+        "An user with this email address already exists"
+      );
     }
 
     var newUser = new IdentityUser
@@ -61,20 +60,14 @@ public class JwtGateway(UserManager<IdentityUser> userManager) : IJwtGateway
 
     if (!createdUser.Succeeded)
     {
-      return new AuthenticationResult
-      {
-        Errors = createdUser.Errors.Select(error => error.Description)
-      };
+      return AuthenticationResult.Failed(
+        string.Join("; ", createdUser.Errors.Select(error => error.Description)
+      ));
     }
 
     var token = Emit(email, newUser.Id);
 
-    return new AuthenticationResult
-    {
-      Errors = [],
-      Success = true,
-      Token = token
-    };
+    return AuthenticationResult.Success(token);
   }
 
   public async Task<AuthenticationResult> LoginAsync(
@@ -86,30 +79,21 @@ public class JwtGateway(UserManager<IdentityUser> userManager) : IJwtGateway
 
     if (user is null)
     {
-      return new AuthenticationResult
-      {
-        Errors = ["Invalid credentials"]
-      };
+      return AuthenticationResult.Failed("Invalid credentials");
     }
 
-    var userHasValidPassword = await userManager
-      .CheckPasswordAsync(user, password);
+    var userHasValidPassword = await userManager.CheckPasswordAsync(
+      user,
+      password
+    );
 
     if (!userHasValidPassword)
     {
-      return new AuthenticationResult
-      {
-        Errors = ["Invalid credentials"]
-      };
+      return AuthenticationResult.Failed("Invalid credentials");
     }
 
     var token = Emit(email, user.Id);
 
-    return new AuthenticationResult
-    {
-      Errors = [],
-      Success = true,
-      Token = token
-    };
+    return AuthenticationResult.Success(token);
   }
 }

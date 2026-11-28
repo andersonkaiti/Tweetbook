@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using Tweetbook.src.Application.Exceptions;
 using Tweetbook.src.Domain.Entities;
 using Tweetbook.src.Domain.Gateways;
@@ -14,9 +13,9 @@ public class LoginUseCase(IJwtGateway jwtGateway)
         user.Password
       );
 
-    if (!authResponse.Success)
+    if (!authResponse.IsSuccess)
     {
-      throw new BadRequestException(string.Join("; ", authResponse.Errors));
+      throw new BadRequestException(authResponse.Error);
     }
 
     return authResponse;
